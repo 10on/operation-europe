@@ -1,0 +1,34 @@
+# schema_version: 1
+# processed: 2026-10-26
+sources:
+- id: GEN-FAQ
+  platform: Sega Genesis
+  title: "Operation Europe: Path to Victory 1939-45 – Strategy Guide"
+  author: "Kevin Butler (War_Doc)"
+  version: "2.30 (updated 2004-12-22)"
+  url: https://gamefaqs.gamespot.com/genesis/586358-operation-europe-path-to-victory-1939-45/faqs/22160
+  accessed: 2026-10-26
+  access_method: "встроенный браузер (прямая загрузка и WebFetch дали HTTP 403)"
+  sections_used: ["§6", "§7", "§7.1", "§7.2", "§8", "§8.1", "§9", "§9.1", "§10", "§11 (частично: 11.1–11.4)"]
+  sections_not_read: []
+  sections_read_later: ["§11.4–11.6", "§12 (таблицы вооружений → private/sources/armaments_genesis_faq.csv, 157 строк)"]
+  license: "Перепубликация запрещена автором; в пакете — только собственные формулировки и короткие названия меню/сообщений."
+- id: SNES-MANUAL
+  platform: SNES
+  files:
+    - "operation-europe-path-to-victory-1939-45-usa__1745.pdf (5.8 MB, 72 страницы-картинки) — рабочая копия"
+    # копия «Operation Europe - Path to Victory 1939 - 1945 ( USA ).pdf» (разворотами, под видом Genesis) удалена 2026-10-26 по просьбе пользователя как дубль
+    - "operation-europe-research/private/sources/snes_manual.pdf (videogamemanual, 12 МБ)"  # не открывался
+  url: https://www.videogamemanual.com/snes/Operation%20Europe%20-%20Path%20to%20Victory%201939-45%20%28USA%29.pdf
+  accessed: 2026-10-26
+  status: "прочитано (печатные стр.): 2–3, 6–7, 9, 16–22, 24, 26, 30–32, 35–44, 45–59, 60–66 — все содержательные разделы, кроме стр. 8, 10–15 (пример игры/настройка), 23, 25, 27–29 (детали Air/SpFc/Orgz), 33–34 (снабжение). Растровые страницы в private/sources/img/b (имя файла = печатная стр. + 1 или +2)"
+- id: DOS-MANUAL
+  platform: DOS
+  files: ["document.pdf (46 стр.; PC manual draft от 1996-08-26, с редакторскими пометками)"]
+  text_extract: "operation-europe-research/private/sources/dos_manual.txt"
+  status: "прочитано полностью"
+  caveat: "черновик: в тексте стоят пометки [place in box], 'x' вместо номеров страниц"
+- id: GEN-MANUAL
+  platform: Sega Genesis
+  url: https://emumovies.com/files/file/1550-sega-genesis-mega-drive-game-manuals-pack/
+  status: "не получен; нужна загрузка пользователем"

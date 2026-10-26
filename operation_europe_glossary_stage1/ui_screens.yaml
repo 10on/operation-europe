@@ -1,0 +1,114 @@
+# schema_version: 1
+# processed: 2026-10-26
+# platform: Sega Genesis; источник GEN-FAQ (War Doc v2.30). Визуальные ориентиры — по ASCII-схемам FAQ, не по скриншотам.
+screens:
+- id: campaign_select
+  purpose: Выбор одной из 6 кампаний с краткой историей и подтверждением.
+  areas: [список кампаний, окно истории]
+  menu_items: [6 кампаний, "play / back to list"]
+  buttons: {dpad: выбор, "?": подтверждение (кнопка не названа в источнике)}
+  prompts: []
+  source_refs: ["GEN-FAQ §6"]
+  confidence: medium
+- id: mode_select
+  purpose: Выбор Demo / 1 player / 2 player.
+  menu_items: [Demo, 1, 2]
+  source_refs: ["GEN-FAQ §6"]
+  confidence: medium
+- id: side_select
+  purpose: Выбор Allies или Axis.
+  menu_items: [Allies, Axis]
+  source_refs: ["GEN-FAQ §6"]
+  confidence: medium
+- id: commander_roster
+  purpose: Список командиров кампании с показателями Ldr, Chrm, Inf, Atry, Tank (1–99) и Division Report.
+  areas: [заголовки столбцов с сокращениями, строки "имя + 5 чисел", Division Report]
+  buttons: {C: пересчитать значения, A: биография, START: к назначению должностей}
+  source_refs: ["GEN-FAQ §7"]
+  confidence: high
+- id: commander_assignment
+  purpose: Назначение AC, CO, CI и командиров дивизий 1–4.
+  areas: [список должностей, Division Report]
+  buttons: {START: войти в игру (вероятно) }
+  source_refs: ["GEN-FAQ §7.2"]
+  confidence: low
+  verification_status: needs_game_verification
+- id: strategic_map
+  purpose: Основной экран кампании.
+  areas: [карта 40x40 слева сверху, окно даты/часа/погоды, меню команд, окно командира, строка сообщений снизу]
+  menu_items: [Tact, SpFc, Ask, Air, Orgz, Move, Info, Wait]
+  buttons: {A: курсор-квадрат, A на юните/городе: сведения, A ещё раз: обзор "с высоты", C: большая карта, START: системное меню}
+  source_refs: ["GEN-FAQ §8, §10.2"]
+  confidence: high
+- id: tact_menu
+  purpose: Выбор дивизии и полка, затем приказа.
+  menu_items: [Move, Dfnd, Atck, Sbtg, Sply, Prsu, Ocpy, Rest]
+  inputs: [дивизия, полк, курсор цели]
+  source_refs: ["GEN-FAQ §8.1"]
+  confidence: high
+- id: spfc_menu
+  purpose: Операции спецсил.
+  menu_items: [Raid, Sbtg, Cut, Elim, Info]
+  source_refs: ["GEN-FAQ §8.1"]
+  confidence: high
+- id: ask_menu
+  purpose: Запрос снабжения / людей / подкреплений.
+  source_refs: ["GEN-FAQ §8.1"]
+  confidence: low
+  verification_status: needs_game_verification
+- id: air_menu
+  purpose: Бомбардировка, десант, сброс снабжения.
+  source_refs: ["GEN-FAQ §8.1"]
+  confidence: low
+  verification_status: needs_game_verification
+- id: wait_input
+  purpose: Ввод числа часов ожидания.
+  source_refs: ["GEN-FAQ §8.1"]
+  confidence: medium
+- id: info_menu
+  purpose: Сводные справки; две половины Axis / Alld.
+  menu_items: [Gnrl, Arms, Vict, Unit, City]
+  source_refs: ["GEN-FAQ §8.1"]
+  confidence: high
+- id: info_arms
+  purpose: Таблица вооружений AP/AT/Df/Sp/GR, по C — добавляется CR.
+  buttons: {C: расширенные характеристики}
+  source_refs: ["GEN-FAQ §8.1"]
+  confidence: high
+- id: info_unit_regiments
+  purpose: Список полков дивизии (Now, Goal, топливо, патроны, еда, мораль, опыт, усталость).
+  buttons: {dpad_left_right: выбор полка, C: батальоны}
+  source_refs: ["GEN-FAQ §8.1"]
+  confidence: high
+- id: info_unit_battalions
+  purpose: Те же столбцы, но вместо топлива/патронов/еды — состав и повреждённая техника.
+  buttons: {C: характеристики вооружения}
+  source_refs: ["GEN-FAQ §8.1"]
+  confidence: medium
+- id: info_city
+  purpose: Данные о городе; C — защищающие части.
+  source_refs: ["GEN-FAQ §8.1"]
+  confidence: medium
+- id: system_menu
+  purpose: Системные настройки.
+  menu_items: [War, Advc, Gfx, Musc, Save, Load, Quit]
+  buttons: {START: открыть}
+  source_refs: ["GEN-FAQ §8.1"]
+  confidence: high
+- id: battle_prompts
+  purpose: Цепочка Y/N вопросов перед и после боя (строка сообщений под картой).
+  prompts: [msg_war_prep_complete, msg_direct_command, msg_view_battle, msg_report_results, msg_enemy_attacked]
+  source_refs: ["GEN-FAQ §9"]
+  confidence: high
+- id: battle_screen
+  purpose: Тактический бой при прямом командовании.
+  areas: [слева меню из 6 команд, центр карта 13x13 с подсвеченными зонами, справа полки, слева внизу таймер]
+  menu_items: [Move, Attack, Pursue, Retreat, Follow, Regiment toggle]
+  buttons: {A: вмешаться, START: анимация, "C x2": назад к меню батальона}
+  source_refs: ["GEN-FAQ §9, §9.1"]
+  confidence: high
+- id: battle_report
+  purpose: Итоги боя с потерями.
+  source_refs: ["GEN-FAQ §9"]
+  confidence: low
+  verification_status: needs_game_verification

@@ -1,0 +1,13 @@
+private/
+artifacts/*
+!artifacts/.keep
+*.pyc
+__pycache__/
+.venv/
+.DS_Store
+*.ghidra
+*.gpr
+*.rep
+*.lock
+.env
+*.zip

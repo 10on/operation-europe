@@ -1,0 +1,34 @@
+# DOSBox-X config for Operation Europe (template, ASCII). @RUN@ is substituted by start_dosboxx.ps1.
+[sdl]
+fullscreen=false
+output=surface
+mouse_emulation=locked
+autolock=false
+
+[dosbox]
+title=Operation Europe (DOSBox-X debug)
+machine=vgaonly
+memsize=16
+
+[cpu]
+core=normal
+cycles=auto
+
+[dos]
+ver=6.22
+xms=true
+ems=true
+umb=true
+
+[sblaster]
+sbtype=none
+
+[midi]
+mpu401=none
+
+[autoexec]
+@echo off
+mount c game-dos-working
+mount d dos-tools
+c:
+@RUN@

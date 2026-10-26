@@ -1,0 +1,15 @@
+# Оригиналы и защищённые авторским правом материалы — не коммитить (docs/10_LEGAL_RELEASE.md)
+/Operation_Europe_Path_To_Victory_1939_To_45/
+*.gen
+*.pdf
+# Приватные данные, артефакты экспериментов, токены
+operation-europe-research/private/
+operation-europe-research/artifacts/*
+!operation-europe-research/artifacts/.keep
+# Прочее
+node_modules/
+*.pyc
+__pycache__/
+.env
+*.zip
+Thumbs.db

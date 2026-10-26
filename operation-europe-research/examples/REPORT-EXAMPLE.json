@@ -1,0 +1,13 @@
+{
+  "schema_version": "1",
+  "task_id": "TASK-001",
+  "status": "BLOCKED",
+  "goal": "Инвентаризация DOS-дистрибутива",
+  "methods": ["Проверено наличие приватной директории; бинарные файлы пока не предоставлены"],
+  "environment": {"platform": "example-only", "tool": "inventory.py"},
+  "claims": [{"text": "Файлы DOS-игры отсутствуют в стартовом пакете; фактический состав не установлен", "confidence": "unknown", "evidence_ids": []}],
+  "evidence": [],
+  "human_summary_ru": "Пример правильного отчёта при отсутствии игровых файлов. Это образец, не результат реального запуска агента.",
+  "open_questions": ["Какая версия DOS-дистрибутива будет исследоваться?"],
+  "next_step": "Поместить законно полученную копию в private/game-dos и выполнить scripts/inventory.py"
+}

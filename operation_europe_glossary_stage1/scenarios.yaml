@@ -1,0 +1,32 @@
+# schema_version: 1
+# processed: 2026-10-26
+# source: DOS-MANUAL (PC manual draft dated 1996-08-26, scenarios section, pp.40-44). Условия победы по Genesis/SNES не сверены —
+# названия городов и состав условий считать общими для платформ только после проверки в игре (verification_status: needs_game_verification).
+# Общие правила для всех сценариев [DOS-MANUAL p.40]: победа — уничтожение всех сил врага; поражение — гибель/убийство Army Commander.
+# Оборонительное условие надо удерживать до последнего дня сценария; наступательное — занять к последнему дню. Если условий два — достаточно одного.
+# Обновление: SNES-MANUAL (p.61-66) подтверждает те же условия для всех 6 сценариев; названия городов с небольшими вариантами
+# (Frankfurt vs "Frankfurt an der Oder"). Названия сценариев в SNES: Occupation of France, North African War, Fierce Battles at Kursk,
+# Storming of Normandy, Battle of the Bulge, Fight for Berlin (совпадают с GEN-FAQ). Для Berlin/Axis оба условия «Defend» — достаточно любого
+# (правило «если условий два — можно выбрать любое», SNES p.61). Вместе с прямым подтверждением из двух платформ confidence: high для условий победы.
+# Раунд мероприятий: по завершении сценария игра заканчивается (SNES p.61).
+scenarios:
+- {n: 1, id: campaign_france_1940, name_dos: "Invasion of France", dates: "1940-05-10..1940-06-22",
+   allies: {type: any_of, conditions: ["Defend Sedan", "Defend San Michel AND Rethel"]},
+   axis: {type: any_of, conditions: ["Occupy Sedan AND San Michel", "Occupy Sedan AND Rethel"]}}
+- {n: 2, id: campaign_north_africa_1942, name_dos: "The Battle for North Africa", dates: "1942-05-26..1942-07-05",
+   allies: {type: any_of, conditions: ["Defend Tobruk AND Sidi Rezegh", "Defend Tobruk AND Belhamed"]},
+   axis: {type: any_of, conditions: ["Occupy Tobruk", "Occupy Sidi Rezegh AND Belhamed"]}}
+- {n: 3, id: campaign_kursk_1943, name_dos: "The Armored Battle at Kursk", dates: "1943-07-05..1943-09-05",
+   allies: {type: any_of, conditions: ["Defend Belgorod", "Defend Oboyan AND Prokhoravka"]},
+   axis: {type: any_of, conditions: ["Occupy Belgorod AND Oboyan", "Occupy Belgorod AND Prokhoravka"]}}
+- {n: 4, id: campaign_normandy_1944, name_dos: "D-Day at Normandy", dates: "1944-06-06..1944-08-19",
+   allies: {type: any_of, conditions: ["Defend or occupy one of Caen, Bayeux, St. Lo", "Defend two of Vierville, Arromanches, Courseulles, Riva Bella"]},
+   axis: {type: all_of_single_condition, conditions: ["Defend Caen, Bayeux AND St. Lo, AND occupy three of Vierville, Arromanches, Courseulles, Riva Bella"]}}
+- {n: 5, id: campaign_bulge_1944, name_dos: "The Battle of the Bulge", dates: "1944-12-16..1945-01-21",
+   allies: {type: single, conditions: ["Defend Bastogne"]},
+   axis: {type: single, conditions: ["Occupy Bastogne"]}}
+- {n: 6, id: campaign_berlin_1945, name_dos: "The Battle for Berlin", dates: "1945-04-16..1945-05-16",
+   allies: {type: single, conditions: ["Occupy Frankfurt an der Oder AND Strausberg"]},
+   axis: {type: any_of, conditions: ["Defend Frankfurt an der Oder", "Defend Strausberg"]},
+   note: "Для Axis в мануале два пункта (интерпретация any_of — по общему правилу «если условий два — достаточно одного»)."}
+reinforcements: "Сценарии 3–6: одна-две дивизии стартуют вне карты и приходят позже [DOS-MANUAL p.9]. Нормандия: 3-я и 4-я дивизии Allies [GEN-FAQ §11.4]."

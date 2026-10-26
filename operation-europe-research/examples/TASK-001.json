@@ -1,0 +1,12 @@
+{
+  "schema_version": "1",
+  "task_id": "TASK-001",
+  "kind": "binary-analysis",
+  "owner": "windows",
+  "goal": "Инвентаризовать предоставленный DOS-дистрибутив, не исполняя файлы и не предполагая формат заранее",
+  "inputs": ["private/game-dos/ (предоставить локально; не входит в репозиторий)"],
+  "expected_outputs": ["artifacts/inventory.json", "knowledge/FILES.md", "artifacts/reports/TASK-001.json"],
+  "max_actions": 15,
+  "stop_conditions": ["Нет каталога исходных файлов: статус BLOCKED", "Обнаружено изменение SHA-256 исходного файла: остановиться"],
+  "evidence_required": ["SHA-256 и размер каждого файла", "Обоснование кандидатов на DOS EXE/COM", "Версия утилиты inventory.py"]
+}

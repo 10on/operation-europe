@@ -1,0 +1,49 @@
+# schema_version: 1
+# processed: 2026-10-26
+# Источники: SNES-MANUAL (рейтинги 1..4, 1 = лучше) и DOS-MANUAL (A..D, A = лучше; A=1 ... D=4).
+# Значения сверены между собой: типы батальонов совпадают полностью. Genesis не проверялся (needs_game_verification).
+battalion_types:   # attack / defend / speed / search; 1 = лучшее, 4 = худшее
+- {id: bn_tank_spg, display_en: "Tanks / Self-propelled Artillery", attack: 1, defend: 1, speed: 2, search: 4, note: "Очень сильные; САУ — большая дальность. SNES p.50-51, DOS p.35"}
+- {id: bn_infantry, display_en: "Infantry", attack: 3, defend: 4, speed: 3, search: 1, note: "Проходит больше всех типов местности, много солдат (до 999 в батальоне). Лучшая разведка"}
+- {id: bn_mech_infantry, display_en: "Mechanized Infantry", attack: 3, defend: 3, speed: 1, search: 2, note: "Пехота на грузовиках"}
+- {id: bn_armored_infantry, display_en: "Armored Infantry", attack: 2, defend: 2, speed: 2, search: 3, note: "Пехота на бронированных полугусеничных транспортёрах"}
+- {id: bn_heavy_art_at, display_en: "Heavy Artillery / Anti-tank Guns", attack: 1, defend: 4, speed: 4, search: 4, note: "Уничтожает танки и броню; большая дальность"}
+- {id: bn_engineer, display_en: "Engineer", attack: 4, defend: 4, speed: 2, search: 2, note: "Мосты, мины"}
+- {id: bn_supply, display_en: "Supply", attack: 4, defend: 4, speed: 1, search: 2, note: "Перевозка материалов"}
+- {id: bn_repair, display_en: "Repair", attack: 4, defend: 4, speed: 1, search: 2, note: "Ремонт повреждённого оружия"}
+terrain_strategic:   # SNES p.30-31 (1=лучше, 4=хуже; speed — скорость движения полка; paradrop/airdrop — пригодность)
+# DOS даёт буквами A..C и x (x = непроходимо/непригодно); у SNES 4 = худшее/непроходимо.
+- {terrain: City,     speed: 1, paradrop: 4, airdrop: 2, note: "Свой город снабжает полки; вражеский — цель захвата"}
+- {terrain: Plains,   speed: 2, paradrop: 2, airdrop: 2}
+- {terrain: Road,     speed: 1, paradrop: 2, airdrop: 2}
+- {terrain: Bridge,   speed: 1, paradrop: 4, airdrop: 4, note: "Можно взорвать боевыми и инженерными полками; по мосту проходит один полк"}
+- {terrain: River,    speed: 4, paradrop: 4, airdrop: 4, note: "Только пехота; инженеры строят мост"}
+- {terrain: Forest,   speed: 3, paradrop: 4, airdrop: 4}
+- {terrain: Hill,     speed: 3, paradrop: 2, airdrop: 2, note: "Уязвима для бомбардировки"}
+- {terrain: Sea,      speed: 4, paradrop: 4, airdrop: 4}
+- {terrain: Wasteland, speed: 3, paradrop: 2, airdrop: 2}
+- {terrain: Swamp,    speed: 4, paradrop: 4, airdrop: 4}
+- {terrain: Desert,   speed: 3, paradrop: 2, airdrop: 2}
+- {terrain: Land mine, speed: 4, paradrop: 4, airdrop: 4, note: "Необнаруженные мины не видны; наезд — урон; инженеры могут искать/снимать"}
+terrain_battle:   # SNES p.44, DOS p.31-32; 10 типов, влияют на защиту батальона
+- {terrain: Building,  speed: 4, defense: 2, note: "В городе; входит только пехота (DOS: скорость x)"}
+- {terrain: Defense encampment, speed: 4, defense: 1, note: "Укреплённый гарнизон в городе; пехота и артиллерия"}
+- {terrain: Plains,    speed: 2, defense: 4}
+- {terrain: Road,      speed: 1, defense: 4}
+- {terrain: Forest,    speed: 3, defense: 2}
+- {terrain: River,     speed: 4, defense: 4, note: "Только пехота"}
+- {terrain: Wasteland, speed: 3, defense: 3}
+- {terrain: Swamp,     speed: 3, defense: 4}
+- {terrain: Desert,    speed: 3, defense: 4}
+- {terrain: Hill,      speed: 3, defense: 3, note: "Стратегическая позиция для артиллерии"}
+regiment_structure:
+  numbering: "Первая цифра = дивизия, последняя = номер полка в дивизии (41 = 4-я дивизия, SNES p.47, DOS p.33). Максимум 10 полков на дивизию (SNES словарь p.58) — расхождение с 8 в DOS/SNES p.47."
+  types_snes_p47: "Assault, Battle, Engineer, Supply; в тексте SNES написано '4 Assault, 2 Battle, 1 Engineer, 1 Supply = 8'; в DOS наоборот '4 Battle, 2 Assault, 1 Engineer, 1 Supply = 8'. Противоречие внутри источников — needs_game_verification."
+  limits: {battle_regiment_battalions: 6, assault_regiment_battalions_dos: 4, engineer_battalions: 4, supply_repair_battalions: 4, infantry_battalion_max: 999, other_battalion_max: 99, army_battalions_max_dos: 128}
+  command_post: "Информация (Info-Unit) серым выделяет дивизию/полк/батальон со штабом (AHQ, DHQ)."
+officers:
+  abilities_snes: [Leadership, Charm, Infantry, Artillery, Tank, Experience]   # SNES p.46-47; Max 99
+  abilities_dos_extra: [Bravery, Health]
+  experience_rule: "Experience/5 прибавляется к остальным способностям (пример: Ldr 70, Exp 10 → 72); итог показывается не выше 99. Каждая победа даёт +1 к опыту. [SNES p.47]"
+  info_command: "Info-Gnrl (SNES и Genesis-FAQ); Info-Ofcr в тексте SNES p.21 — расхождение названий. Список состоит из 2 страниц (p.1/2)."
+  chief_roles: {CO: "влияет на успех SpFc (SNES p.45, DOS p.37)", CI: "влияет на авиацию (SNES p.46, DOS p.37) — расходится с GEN-FAQ §7.2"}

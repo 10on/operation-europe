@@ -1,0 +1,20 @@
+# Template for DOSBox Automation 0.85.1; start_dosbox.ps1 substitutes @GAME_DIR@ and @RUN@. Do NOT put the token here (taken from DOSBOX_API_TOKEN).
+[webserver]
+webserver_enabled = true
+webserver_bind_address = 127.0.0.1
+webserver_port = 8386
+
+[sdl]
+fullscreen = false
+
+[cpu]
+core = normal
+cpu_cycles = 200000
+cpu_throttle = off
+
+[autoexec]
+@echo off
+mount c "@GAME_DIR@"
+mount d dos-tools
+c:
+@RUN@

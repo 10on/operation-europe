@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Operation Europe Research Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "task_id", "status", "goal", "methods", "environment", "claims", "evidence", "human_summary_ru", "open_questions", "next_step"],
+  "properties": {
+    "schema_version": {"type": "string", "enum": ["1"]},
+    "task_id": {"type": "string"},
+    "status": {"type": "string", "enum": ["COMPLETED", "BLOCKED", "FAILED", "NEEDS_REVIEW"]},
+    "goal": {"type": "string"},
+    "methods": {"type": "array", "items": {"type": "string"}},
+    "environment": {"type": "object", "additionalProperties": {"type": "string"}},
+    "claims": {"type": "array", "items": {"type": "object", "required": ["text", "confidence", "evidence_ids"], "properties": {"text": {"type": "string"}, "confidence": {"type": "string", "enum": ["confirmed", "observed", "inferred", "unknown"]}, "evidence_ids": {"type": "array", "items": {"type": "string"}}}}},
+    "evidence": {"type": "array", "items": {"type": "object", "required": ["id", "path", "kind"], "properties": {"id": {"type": "string"}, "path": {"type": "string"}, "kind": {"type": "string"}, "sha256": {"type": "string"}}}},
+    "human_summary_ru": {"type": "string"},
+    "open_questions": {"type": "array", "items": {"type": "string"}},
+    "next_step": {"type": "string"}
+  }
+}

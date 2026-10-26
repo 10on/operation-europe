@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Operation Europe Research Job",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "task_id", "kind", "owner", "goal", "inputs", "expected_outputs", "max_actions", "stop_conditions", "evidence_required"],
+  "properties": {
+    "schema_version": {"type": "string", "enum": ["1"]},
+    "task_id": {"type": "string", "minLength": 4},
+    "kind": {"type": "string", "enum": ["binary-analysis", "emulator", "vision", "review", "port-test"]},
+    "owner": {"type": "string", "enum": ["windows", "mac", "cloud"]},
+    "goal": {"type": "string", "minLength": 8},
+    "inputs": {"type": "array", "items": {"type": "string"}},
+    "expected_outputs": {"type": "array", "items": {"type": "string"}},
+    "max_actions": {"type": "integer", "minimum": 1},
+    "stop_conditions": {"type": "array", "items": {"type": "string"}},
+    "evidence_required": {"type": "array", "items": {"type": "string"}}
+  }
+}

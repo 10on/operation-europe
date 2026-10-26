@@ -1,0 +1,33 @@
+# schema_version: 1
+# processed: 2026-10-26
+# status: verified_from_source | needs_game_verification. Кнопки подтверждения/отмены в источнике не названы — не выдумывались.
+transitions:
+- {from: campaign_select, trigger: "выбрать кампанию, подтвердить play", to: mode_select, expected: "история, затем выбор режима", refs: ["GEN-FAQ §6"], status: verified_from_source}
+- {from: campaign_select, trigger: "отказаться от просмотренной кампании", to: campaign_select, expected: "возврат к списку", refs: ["GEN-FAQ §6"], status: verified_from_source}
+- {from: mode_select, trigger: "выбрать Demo/1/2", to: side_select, expected: "вопрос о стороне", refs: ["GEN-FAQ §6"], status: verified_from_source}
+- {from: side_select, trigger: "выбрать Allies/Axis", to: commander_roster, expected: "список командиров кампании", refs: ["GEN-FAQ §6, §7"], status: verified_from_source}
+- {from: commander_roster, trigger: "кнопка C на командире", to: commander_roster, expected: "значения пересчитаны случайно", refs: ["GEN-FAQ §7"], status: verified_from_source}
+- {from: commander_roster, trigger: "кнопка A на командире", to: commander_roster, expected: "биография (вид экрана — неизвестен)", refs: ["GEN-FAQ §7"], status: needs_game_verification}
+- {from: commander_roster, trigger: "START", to: commander_assignment, expected: "меню назначений", refs: ["GEN-FAQ §7.1"], status: verified_from_source}
+- {from: commander_assignment, trigger: "завершить назначения", to: strategic_map, prerequisites: "назначены AC, CO, CI, 1–4", expected: "основной экран", refs: ["GEN-FAQ §7.2, §8"], status: needs_game_verification}
+- {from: strategic_map, trigger: "меню Tact", to: tact_menu, expected: "выбор дивизии → полка → приказа", refs: ["GEN-FAQ §8.1"], status: verified_from_source}
+- {from: tact_menu, trigger: "выбрать приказ", to: strategic_map, expected: "курсор цели, затем приказ отдан", refs: ["GEN-FAQ §8.1"], status: needs_game_verification}
+- {from: strategic_map, trigger: "меню SpFc", to: spfc_menu, expected: "5 операций, курсор цели", refs: ["GEN-FAQ §8.1, §10.3"], status: verified_from_source}
+- {from: strategic_map, trigger: "меню Ask", to: ask_menu, expected: "запрос, ответ через часы", refs: ["GEN-FAQ §8.1"], status: needs_game_verification}
+- {from: strategic_map, trigger: "меню Air", to: air_menu, expected: "бомбёжка / десант / сброс", refs: ["GEN-FAQ §8.1"], status: needs_game_verification}
+- {from: strategic_map, trigger: "меню Wait", to: wait_input, expected: "ввод часов", refs: ["GEN-FAQ §8.1"], status: needs_game_verification}
+- {from: strategic_map, trigger: "меню Info", to: info_menu, expected: "Axis/Alld и пять подпунктов", refs: ["GEN-FAQ §8.1"], status: verified_from_source}
+- {from: info_menu, trigger: "Arms", to: info_arms, refs: ["GEN-FAQ §8.1"], status: verified_from_source}
+- {from: info_menu, trigger: "Unit, C, выбор дивизии", to: info_unit_regiments, refs: ["GEN-FAQ §8.1"], status: verified_from_source}
+- {from: info_unit_regiments, trigger: "C на полке", to: info_unit_battalions, refs: ["GEN-FAQ §8.1"], status: verified_from_source}
+- {from: info_unit_battalions, trigger: "C", to: info_arms, expected: "характеристики вооружения (экран может быть отдельным)", refs: ["GEN-FAQ §8.1"], status: needs_game_verification}
+- {from: info_menu, trigger: "City", to: info_city, refs: ["GEN-FAQ §8.1"], status: verified_from_source}
+- {from: strategic_map, trigger: "START", to: system_menu, expected: "War/Advc/Gfx/Musc/Save/Load/Quit", refs: ["GEN-FAQ §8.1"], status: verified_from_source}
+- {from: strategic_map, trigger: "A", to: strategic_map, expected: "мигающий курсор-квадрат; A на юните/городе — сведения; A ещё раз — обзорная карта", refs: ["GEN-FAQ §10.2"], status: verified_from_source}
+- {from: strategic_map, trigger: "C", to: strategic_map, expected: "общий вид поля боя", refs: ["GEN-FAQ §8.1"], status: needs_game_verification}
+- {from: strategic_map, trigger: "часть готова к бою (событие)", to: battle_prompts, prerequisites: "приказ Atck/Ocpy, 2–10 ч подготовки", expected: "War preparations complete. Begin attack (Y/N)?", refs: ["GEN-FAQ §9"], status: verified_from_source}
+- {from: battle_prompts, trigger: "Y на всех, прямое командование + показ", to: battle_screen, expected: "расстановка в подсвеченной зоне", refs: ["GEN-FAQ §9"], status: verified_from_source}
+- {from: battle_prompts, trigger: "N на командовании или показе", to: battle_report, expected: "бой пройден автоматически, затем Report results?", refs: ["GEN-FAQ §9"], status: needs_game_verification}
+- {from: battle_screen, trigger: "победа/поражение/таймер", to: battle_prompts, expected: "вопрос Report results (Y/N)?; при таймере — новая подготовка", refs: ["GEN-FAQ §9, §9.1"], status: needs_game_verification}
+- {from: battle_prompts, trigger: "Report results = Y", to: battle_report, refs: ["GEN-FAQ §9"], status: verified_from_source}
+- {from: battle_report, trigger: "закрыть", to: strategic_map, refs: [], status: needs_game_verification}
