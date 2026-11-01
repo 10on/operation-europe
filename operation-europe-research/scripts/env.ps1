@@ -16,18 +16,18 @@ $env:OE_DOSBOX_AUTOMATION = if ($dba) { $dba.FullName } else { "" }
 $env:OE_DOSBOX_X = "C:\DOSBox-X\dosbox-x.exe"
 $env:Path = "$py;$py\Scripts;$($env:JAVA_HOME)\bin;$env:Path"
 
-# Токен DOSBox API — из файла private\dosbox\api_token.txt (в .gitignore), в сессию, не в логи
-$tokFile = Join-Path $OE "private\dosbox\api_token.txt"
-if (Test-Path $tokFile) { $env:DOSBOX_API_TOKEN = (Get-Content $tokFile -Raw).Trim() }
+# Токен DOSBox API задаётся только через уже существующую DOSBOX_API_TOKEN.
+# Не читать секрет из файла и не печатать его в логи.
 $env:DOSBOX_API_URL = "http://127.0.0.1:8386"
 
 function oe-check   { & $env:OE_PYTHON "$OE\scripts\check_env.py" @args }
 function oe-inv     { & $env:OE_PYTHON "$OE\scripts\inventory.py" "$OE\private\game-dos" --out "$OE\artifacts\inventory.json" }
 function oe-dosbox  { & "$OE\scripts\start_dosbox.ps1" @args }
 function oe-api     { & $env:OE_PYTHON "$OE\scripts\dosbox_api.py" @args }
+function oe-iolog   { & $env:OE_PYTHON "$OE\scripts\oe_iolog.py" @args }
 function oe-dosboxx { & "$OE\scripts\start_dosboxx.ps1" @args }
 function oe-ctl     { & $env:OE_PYTHON "$OE\scripts\dosbox_ctl.py" @args }
-function oe-boot { param([string]$To="menu",[string]$Input_="",[switch]$Show) if (-not $Input_) { $Input_ = if ($To -eq "newgame") { "keyboard" } else { "mouse" } } Get-Process dosbox -ErrorAction SilentlyContinue | Stop-Process -Force; Start-Sleep 1; & "$OE\scripts\start_dosbox.ps1" -Run "fmdrv`nmain" -Show:$Show | Out-Null; & $env:OE_PYTHON "$OE\scripts\boot_game.py" --to $To --input $Input_ }
+function oe-boot { param([string]$To="menu",[string]$Input_="",[switch]$Show) if (-not $Input_) { $Input_ = if ($To -eq "newgame") { "keyboard" } else { "mouse" } } if (Get-Process dosbox -ErrorAction SilentlyContinue) { throw 'DOSBox process already running - aborting boot' }; & "$OE\scripts\start_dosbox.ps1" -Run "fmdrv`nmain" -Show:$Show | Out-Null; & $env:OE_PYTHON "$OE\scripts\boot_game.py" --to $To --input $Input_ }
 function oe-record { param([ValidateSet("start","stop","note")]$cmd,$name,[Parameter(ValueFromRemainingArguments)]$rest) & $env:OE_PYTHON "$OE\scripts\record_session.py" $cmd $name @rest }
 function oe-ghidra  { & "$OE\scripts\ghidra_import.ps1" @args }
 function oe-validate{ param([ValidateSet("report","job")]$kind,$file) & $env:OE_PYTHON "$OE\scripts\validate_json.py" "$OE\schemas\$kind.schema.json" $file }

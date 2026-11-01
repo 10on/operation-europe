@@ -1,10 +1,17 @@
 # STATE — точка продолжения (2026-10-26)
 
+## Приоритет и опыт 2026-10-29
+- Пользователь просит продолжать реверс с приоритетом простых локальных скриптов/моделей; искать небольшие проверяемые задачи для Gemma/Qwen/gpt-oss и оценить Jev. Рабочий маршрут: `LOCAL_MODELS.md`.
+- `LOCAL-001`: `scripts/local_model_probe.py prepare` сверил SHA main.exe, все 60 инструкций TASK-007A и байты DOS read/seek wrappers. Статическая арифметика file `0xD12E..0xD143`: `9600 + (entry_AX & 255) * 8143`, проверена симуляцией всех 65536 AX. Размер scedata 66601 точно равен `9600 + 7 * 8143`. Это кандидат структуры (`inferred`), не подтверждение семи сценариев: DS, фактическое имя открытого файла и допустимый индекс пока неизвестны.
+- Подготовлены шесть вопросов и строгий оценщик ответов. Unit test проходит. Роутер сообщил здоровые gemma4-e4b/mac/a2000; модельный вызов ещё не выполнен, ожидается выбор tier владельцем согласно описанию инструмента. Отчёт: `artifacts/experiments/LOCAL-001/report.json` (`NEEDS_REVIEW`).
+
 ## Где мы
-- Окружение готово (`oe-check` = ГОТОВО): Python 3.12, JDK 25, Ghidra 12.2 (C:\Tools), DOSBox Automation 0.85.1 (C:\Tools), DOSBox-X (C:\DOSBox-X), NASM. Подробно: `ENVIRONMENT.md`.
+- Инструменты установлены: Python 3.12, JDK 25, Ghidra 12.2 (C:\Tools), DOSBox Automation 0.85.1 (C:\Tools), DOSBox-X (C:\DOSBox-X). `oe-check` в новой сессии сейчас сообщает об отсутствующей `DOSBOX_API_TOKEN`: старый файл токена ещё не перенесён. Подробно: `ENVIRONMENT.md`.
 - Данные: `private/game-dos` (мастер-копия + `game-dos.sha256`), `private/game-dos-working` (копия для эмулятора/Ghidra). Оригиналы не менялись.
 - Этап 1 (глоссарий) готов: `operation_europe_glossary_stage1/` (glossary, ui_screens, ui_transitions, scenarios, units_terrain, game_logic, platform_differences, unverified_questions, source_index). YAML валидны.
-- Ghidra: main.exe и open.exe импортированы (MZ, x86 16-bit real mode), анализ не запускался.
+- Ghidra: существующие импорты main.exe и open.exe проверены консольным `analyzeHeadless -readOnly -noanalysis`: MZ, x86 16-bit real mode, entry и размеры образов совпали с MZ. Один ограниченный `-readOnly` автоанализ main.exe запускался для поиска xrefs; изменения в проекте не сохранялись. GUI-снимок через Computer Use получить не удалось (таймаут). См. `artifacts/experiments/TASK-005`.
+- Статика `main.exe`: три call sites около `SCEDATA`, один около `HEXMAP.DAT`, один около `MSG` передают смещения в общий wrapper, который вызывает DOS `INT 21h/AH=3Dh` (open). Значение DS и размеры чтения ещё неизвестны. См. `FILE_IO.md` и `artifacts/experiments/TASK-006`.
+- Файловые измерения: `DATA_FILES.md`. Первые 9 600 байт `scedata` состоят из 12 текстовых блоков по 800 байт, но интерпретация записей ещё не подтверждена. Пары `msg`/`msg.16p` и `emsg`/`emsg.16p` побайтно равны.
 - Игра в DOSBox: вход `oe-boot menu|scenarios|newgame` (клавиатурный проход ~65 с до стратегической карты France, Allies, Very Easy). Мышь работает (INT 33h), см. `DOS_INPUT.md`; путь экранов — `DOS_SCREENS.md`; запись ручного прохождения `artifacts/experiments/PLAY-001`.
 - Окно DOSBox по умолчанию открывается свёрнутым (`-Show` — обычное).
 
@@ -15,11 +22,102 @@
 Поиск слов на стратегическом экране (Infantry 12811, Tanks 217, Mech 390, Arty 411, Repair 425, Supply 762): 12811 — 39 совпадений кластером около 0x413DE..0x41549 (шаг 6/8 — кандидат: таблица батальонов/полков), прочие числа дают много совпадений. Физические адреса DOSBox, не сегмент:смещение. Нужен дифференциальный метод (изменить параметр → пересканировать).
 
 ## Следующие шаги
-1. Пройти экраны Info (Units/Cities/Commanders/Armaments/Victory) клавиатурой, снять скриншоты (`artifacts/experiments/MAP-001`).
-2. Найти в RAM таблицу полков/батальонов по числам с экрана Info-Units (дифференциально: Orgz/Supply/Move меняют значения).
-3. Карта: Field Map (1:130000?) — найти массив местности (hexmap.dat/bigmap.dat/midmap.dat — форматы неизвестны).
-4. Ghidra: entry point main.exe, xrefs на найденные адреса данных.
+1. Статически проверить значение DS в пяти точках открытия файлов и проследить handle до DOS `read`/`seek`, чтобы измерить размеры чтения `scedata` и `hexmap.dat`.
+2. После восстановления `DOSBOX_API_TOKEN` в переменной окружения запустить рабочую копию в DOSBox/DOSBox-X и динамически сверить один файловый вызов.
+3. Пройти экраны Info (Units/Cities/Commanders/Armaments/Victory) клавиатурой, снять скриншоты (`artifacts/experiments/MAP-001`); для спорных полей использовать локальную vision-модель только как вспомогательное чтение.
+4. Найти в RAM таблицу полков/батальонов по числам с экрана Info-Units дифференциально.
 5. Genesis-мануал не получен (ссылка в source_index.yaml); расхождения консоли/DOS — в `unverified_questions.md`.
 
 ## Правила (не забывать)
-Оригиналы не менять и не коммитить; гипотезы помечать (confirmed/observed/inferred/unknown); токен DOSBox только в env; графику/exe пока не патчим (решение пользователя).
+Оригиналы не менять и не коммитить; гипотезы помечать (confirmed/observed/inferred/unknown); токен DOSBox только в env; графику/exe пока не патчим (решение пользователя). Legacy-файл `private/dosbox/api_token.txt` ещё существует: автоматическая проверка отклонила его перенос и удаление как рискованную миграцию секрета без отдельного одобрения. Не читать/не выводить его в отчётах.
+
+## Чекпойнт 2026-10-27: DS и стоимость анализа
+- Hub #13 / `TASK-007A` передан в review. В `artifacts/experiments/TASK-007A/one-function.json` сохранена ровно одна функция `main.exe` (SHA-256 `0b33be2f…e9df`): file `0xD128..0xD1C5`, Ghidra `16db:0378..0415`, 60 инструкций/158 байт, `truncated=false`. Ghidra подтвердила caller `16db:17f7` (file `0xE5A7`). В самой функции нет явной записи DS. Отдельное `MOV AX,CS:[0x4191]; MOV DS,AX` видно по file `0xA15F..0xA163`, но связь этого значения с call site не доказана. **DS в `INT 21h/AH=3Dh` остаётся unknown**, как и фактический указатель на SCEDATA. Полный метод, адреса и ограничения — `TASK-007A/report.json` (`NEEDS_REVIEW`).
+- Замер эффективности: `artifacts/experiments/EFF-001/` (предыдущая `TASK-006`) и `EFF-002/` (`TASK-007A`). Вторая задача использовала 47 облачных ответов против 48 и больше символов вывода инструментов; снижение расхода токенов на 29,52% нельзя приписывать новому процессу, поскольку задачи различаются. Универсальные инструменты пока не писать; следующий тест должен уменьшать число вызовов, а не только размер отдельного вывода.
+- Следующий опыт по DS: один breakpoint в DOSBox-X у открывающего `INT 21h/AH=3Dh`, сохранить предусловия, runtime load base, DS, DX и короткую строку DS:DX в локальный файл. До него не повышать confidence связи с SCEDATA. Для DOSBox Automation переменная `DOSBOX_API_TOKEN` в текущей сессии отсутствует; старый файл секрета не трогать.
+- Hub #14 / `TASK-007B` закрыт: wrapper Ghidra `1000:0043` / file `0x6043` — DOS read `INT 21h/AH=3Fh`; выбранный call site Ghidra `16db:03b7` / file `0xD167` передаёт handle `[BP-2]`, buffer offset `DX=0x0042`, count `CX=0x1FCF` (8143). Это **статические аргументы**; DS, успешность read и фактический файл всё ещё unknown. Доказательства: `artifacts/experiments/TASK-007B/read-wrapper.json` и `report.json`. Короткая проверка стоила 9 облачных ответов по `EFF-003`; разница с более широкой `TASK-007A` не является контролируемой оценкой экономии.
+- Hub #15 / `TASK-007C` закрыт: в HEXMAP.DAT-подобной точке file `0x30A97` (Ghidra alias `3000:AA97` / `3a96:0137`) AX открывающего wrapper сохраняется в `[BP-0x10]`; затем идёт DOS seek `AH=42h` от начала файла с символическим `CX:DX` из предшествующего `CALLF 1000:4510`, затем DOS read `AH=3Fh` с `CX=0xC4` (196) в `DS:CF00`. Числовой seek offset, DS, успешность вызовов и реальное имя файла неизвестны; геометрия карты не выводилась. Доказательства: `artifacts/experiments/TASK-007C/hexmap-site.json` и `report.json`.
+- MCP-проба `MCP-001` (2026-10-27): pyghidra-mcp `42d8f805…` ставился в `private/tools/pyghidra-mcp`, FlaUI-MCP `v0.2.0` в `private/tools/flaui-mcp-v0.2.0`; оба удалены, временный диск `P:` отключён (откат завершён). PyGhidra не прошла initialize из-за кириллицы физического пути JPype, а FlaUI дублирует штатный UIA Computer Use; измерения и ограничения — `artifacts/experiments/MCP-001/{measurement,report}.json`. Для DOSBox MCP ничего не устанавливали.
+- Диагностика питания A2000 (2026-10-27): активная схема «Сбалансированная», `standby-timeout-ac=0` и `hibernate-timeout-ac=0` уже до проверки; S0 не поддерживается, гибернация выключена, за 12 часов нет событий сна/пробуждения 42/107/506/507/1, сеть — проводной `Ethernet 2`. Попытка повторно записать `standby-timeout-ac 0` отвергнута без прав администратора; настройки не изменены, откат не требуется. `powercfg /requests` тоже требует администратора; причина недоступности узла остаётся unresolved.
+- Дополнение по сети A2000: `Ethernet 2` (Intel I217-LM #2, 1 Гбит/с, 192.168.8.224) имеет `Energy Efficient Ethernet=On` (`EEELinkAdvertisement=1`) и `Reduce Speed On Power Down=Enabled` (`ReduceSpeedOnPowerDown=1`); `System Idle Power Saver=Disabled`. `Get-NetAdapterPowerManagement` вернул ошибку устройства, поэтому флаг «разрешить отключение» не подтверждён. За 12 часов NetworkProfile 10000/10001 и System-событий сетевого драйвера/Tcpip не было; более ранний link up 26.10 в 12:00 совпал с перезагрузкой. `127.0.0.1:8099/health` отвечает `status=ok`. При программно погашенном мониторе (25 с, затем восстановлен) запрос `hub_model_status` через NAS показал `a2000.health.ok=true`; длительный простой этим не проверен. Попытка выключить EEE отклонена из-за отсутствия прав администратора, значение после проверки осталось 1; остальные параметры не менялись, откат не требуется.
+
+
+## LOCAL-001: выполненные вызовы 2026-10-29
+Пользователь разрешил standard и рекомендовал oss. Выполнено 5 запросов: первый вернул work service is unavailable (62.1 с); decision — empty_answer после 1024 токенов на mac и gemma4-e4b (40.3 с). Три одиночных text-запроса обслужила gemma4:e4b: DOS AH=3Fh ошибочно unknown (12.2 с), отсутствие доказательства полного чтения — правильно No (8.7 с), runtime CF=0/AX=12 — правильно 12 (8.1 с). Это адаптивная проба, не общая точность 2/3. Модель на Mac не идентифицирована; интерфейс не позволяет выбрать gpt-oss по имени. Сырые ответы и запросы: artifacts/experiments/LOCAL-001/run-01..05.json и request*.json; сводка model-results.json. Jev пока не вызывался.
+
+
+## TypeSafe/Jev — 2026-10-29
+Установлен проектный навык `.agents/skills/typesafe-ai/SKILL.md` через npx (Codex). Применять при работах с TypeSafe. Пользователь разрешил на эту ночь максимум $1, без пользы максимум $0.50; runner `scripts/run_jev.ps1` / `jev_probe.py` держит более строгий $0.50 и срок до 08:00 Europe/Budapest 29 октября. После срока не вызывать без нового разрешения. Ключ DPAPI работает; не читать его в вывод. JEV-001: 16/16 синтетических вопросов, jev-1.14.0; 285/227 мс; успешные вызовы около $0.000097356 по тарифу. Сетевая ошибка отдельно; резерв всех попыток $0.03. Это не доказательство качества реального реверса. Baseline с фрагментами проекта заблокирован auto-review, разрешение передачи запрошено; синтетические наборы одобрены. Полные request/response/usage/probabilities/grade в `artifacts/experiments/JEV-001/call-*.json`, бюджет в `budget.json`, отчёт в `report.json`.
+
+
+### Продолжение JEV-001 и разрешение пользователя
+Пользователь явно разрешил baseline, затем дальнейшие запросы Jev без повторного approval на ту же ночь и бюджет ($1 максимум; без пользы максимум $0.50). Более строгий лимит runner $0.50 остаётся, срок 2026-10-29 08:00 Europe/Budapest. Baseline выполнен: 5/6, 275 мс; ошибка формулы — пропущено обнуление AH, выбран полный AX. Контрпример для гипотетического AX=0x0100: 9600 против 2094208, не runtime-наблюдение игры. Все три успешных вызова оцениваются в $0.000137718; резерв четырёх попыток $0.04. Прежний блокер передачи baseline снят явным разрешением. Не просить заново разрешение на обычные короткие запросы в рамках этого согласования; не отправлять бинарники, большие дампы или секреты.
+
+
+## TASK-008 — вторая пара seek/read, 2026-10-29
+`probe_mapinf.py` проверяет SHA/60 инструкций и арифметику 256 значений. File 0xD19F (Ghidra 16db:03ef): seek от начала на `(byte DS:0043 & 127)*1600`. File 0xD1B2 (16db:0402): read 1600 байт в DS:20B6. MAPINF.DAT по file 0x50012 — inferred-кандидат имени для LEA 0x2EF2, runtime DS неизвестен. mapinf.dat/mappno.dat/hexdisp.dat имеют по 9600 байт; геометрия/смысл не установлены. Helper между первым read и индексным байтом разобран частично: 1000:6e64 → 1000:6f25, сравнение счётчика с 2, stride 0x41/base 0x21A, JMP 1000:6ec4 и conditional target 1000:6f48. Следующие ограниченные цели именно 6ec4 и 6f48. Не объявлять DS:0043 неизменным. Отчёт TASK-008/report.json; два Ghidra лога, measurement, скрипт. Jev-аудит 6/6 в call-005.json, 248 мс.
+Ночная heartbeat-автоматизация НЕ создана: auto-review потребовал явного разрешения recurring-запусков. Пользователю отправлен отдельный вопрос; не утверждать, что работа продолжится после финального ответа, пока автоматизация не создана.
+
+
+### TASK-008: CFG завершён; ночные продолжения включены
+Позднее в том же проходе `InspectOeHelperFlow.java` собрал 246 уникальных инструкций helper, очередь пуста, нет missing/outside/calls. `verify_helper_flow.py` побайтно сверил все инструкции. Таблица file 0xCED2 содержит 8 слов: индексы 0,2,3,6 ведут на file 0xCE74; 1,4,5,7 — на 0xCE9E (CS offsets C4/EE, Ghidra segment 16db, file origin CDB0). Явных упоминаний DS нет; nonstack MOV stores сохранены в helper-verified.json. Это заменяет прежний пункт о необходимости пройти 6ec4/6f48: экспорт уже выполнен, НЕ повторять. Следующий шаг: диапазоны индексируемых MOV stores и возможное SS/DS aliasing; DS:0043 пока не считать сохранным.
+Пользователь явно разрешил ночные продолжения каждые 30 минут до 08:00. Heartbeat успешно создан: automation id `operation-europe`, ACTIVE, этот чат. В 08:00 29 октября 2026 Europe/Budapest или позже работа/платные вызовы прекращаются, подводится итог и automation переводится в PAUSED. Общий бюджет Jev тот же, не новый на каждый проход. Автоматизация зависит от доступности локального приложения/машины.
+
+
+## TASK-009 — 2026-10-29, дневное продолжение
+Пользователь продлил Jev со старыми суммарными лимитами. Счётчик не сброшен; cap runner $0.50; срок для текущего дня до 2026-10-30T00:00+01:00. Ночная automation operation-europe приостановлена после истечения 08:00, новых автоматических запусков не обещать.
+`helper_write_footprint.py` проверил 8 nonstack store expressions: DS:0043 не затрагивается при целых loop locals и отсутствии SS/data/code aliasing. Это условное утверждение. Байты кандидатных scedata блоков на +1: 128,0,1,2,3,4,5 → masked 0,0,1,2,3,4,5; совместимо с шестью 1600-byte регионами, но имя/успех runtime read неизвестны. Отчёт TASK-009/report.json; Jev audit call-006 6/6, 364 ms.
+Обнаружено: каталог TASK-008 уже содержал старую динамическую пробу 2026-10-27 (experiment.json, runtime-compare.json, attach-probe.json, RAM sample). Они сохранены, но новый report.json был записан поверх прежнего отчёта при предыдущей работе; не считать каталог одним экспериментом. Старый runtime load base 0849 относится только к старой сессии, DS at open там unknown. Для следующих задач выбирать свободный ID заранее.
+Следующий шаг: сверить текущий эмулятор/ввод и поймать реальный open; использовать старую пробу как описание метода, не как текущую RAM.
+
+## Ночь 30 октября: актуальное продолжение
+См. knowledge/NIGHT-20261030.md: разрешение до 08:00 Budapest, automation ACTIVE каждые 30 минут; общий ledger не сбрасывать. TASK-010 runtime чтения проверены по полным буферам и AX (SCEDATA 8143 @17743; MAPINF 1600 @0). Отчёт schema-valid. Jev call-008 6/6, резерв всех 8 попыток 0.08 USD. Следующий шаг — DS:0043 до/после helper и другой сценарий, новый ID эксперимента.
+
+
+## JEV-003 — семантическая сортировка
+Три выбранных Jev кандидата содержат open wrapper; девять воздержаний не исключены. Найден кандидат file D1C6: чтение 800 байт с seek max(AL-1,0)*800, SCEDATA inferred. Важное исправление FILE_IO: file 50068 содержит полную строку MSGRP.DAT, а не самостоятельную строку MSG. Детали и границы в JEV-003/report.json и knowledge/NIGHT-20261030.md.
+
+
+## TASK-011 — runtime 800-byte reader
+Подтверждён f00 file D1C6: AL=1 → SCEDATA seek0/read800, буфер 4F5B:F95E полностью совпадает с первыми 800 байтами файла. Код + API + побайтовая проверка. report.json и run-20261030T033318Z; проверка scripts/verify_scenario_slice.py. Назначение всех участков/число сценариев не установлены.
+
+
+## TASK-012/013 — helper в двух состояниях
+До/после close+helper снято по 8143 байта. DS0043 сохраняется 0→0 в исходном выборе и 1→1 после down. Изменённые байты укладываются в статические store footprints TASK009. Детали, SHA и ограничения — report.json/comparison.json соответствующих экспериментов. Следующий шаг — проверить MAPINF offset1600 после down динамически.
+
+
+## TASK-014 — второе чтение MAPINF
+После down подтверждено SCEDATA offset25886/read8143 и MAPINF.DAT offset1600/read1600 полным сравнением буферов. Предсказание по индексу1 подтверждено. Отчёт TASK-014/report.json. FILE_IO.md и DATA_FILES.md актуализированы.
+
+
+TASK-015: два down → SCEDATA34029 и MAPINF3200, оба read проверены. Сводная таблица 0/1/2 down: knowledge/SCENARIO_READS.md. Названия сценариев и геометрия не установлены.
+
+
+TASK-019: runtime caller 800-byte reader найден: CALL fileE559, предшествует PUSH CS fileE558; return runtime0F24:17AC/fileE55C, байты0EE86AEC проверены. Следующие цели 1000:842c и 1000:8472, неизвестная обработка локального буфера. См. report и caller-tail.log, NIGHT-20261030.md.
+
+
+TASK-020: 171 инструкций проверены с MZ relocations. Цепочка кандидата потребителя 8472→4c84, byte parser с zero/space/ESC inferred; actual rendering неизвестен. Следующий шаг runtime BX/buffer equality на этих entry. Детали в report и NIGHT.
+
+
+TASK-021: runtime цепочка read return7208→wrapper8472→consumer4C84 сохраняет указатель4F5B:F95E и все800 байт SCEDATA[0:800]. Проверено локально; glyph output/полный CFG остаются неизвестными. Отчёт и verify_text_chain.py. Ночное окно30 октября заканчивается08:00 Budapest.
+
+
+## Ночное окно завершено
+30 октября08:03 Budapest: automation operation-europe удалена после завершения окна. Итог knowledge/NIGHT-20261030-RESULTS.md. Следующая цель — завершить CFG4C84 и найти вывод символов. Платные вызовы после08:00 не разрешены прежним окном; ledger сохранять.
+
+
+
+## Handoff — 2026-10-31, остановлено пользователем
+- Цель: пакетные инструменты; старую переписку не восстанавливали, Jev не вызывали. Новые запуски остановлены.
+- Пункт 1 / IOLOG-20261031: scripts/oe_iolog.py и alias oe-iolog; 6×190 с, 466 операций / 163 чтения, 0 расхождений, рабочие файлы неизменны. knowledge/FILE_MAP.md; raw JSONL artifacts/experiments/IOLOG-20261031/batch/scenario-N/io.jsonl; verified.json и endpoint-check.json.
+- Ограничение: AUTOTYPE продолжался после карты, кадры показывают исполнение приказов и продвижение времени; One Player и точный endpoint ручного стратегического экрана не подтверждены. complete=false в старых summary — не обновлявшийся флаг, не результат проверки; все интервалы завершились по 190 с.
+- Пункт 2 / SCENAMES-20261031: 6 названий меню сверены по кадру и строкам EXE; предыстории blocks0..5 читаются по offsets0..4000 (observed). Условия blocks6..11 (offsets4800..8800) сопоставлены по содержимому/порядку (inferred), в этом маршруте не читались. Таблица FILE_MAP.md; mapping.json и короткий report.json.
+- Пункт 3 / SCEPARSE-20261031: scripts/scedata_record.py; round-trip 7/7 записей и всего SCEDATA равен, malformed framing отвергается. Парсер структурный/частичный, большинство полей opaque; roundtrip.json и report.json.
+- Следующий шаг: синхронизировать ввод/первый готовый стратегический экран, затем одним batch открыть Info → Victory для всех 6 и проверить оставшиеся 6 текстов; не возвращаться к задачам «одно чтение». oe_file_map.py воспроизводит replay и таблицу без эмулятора.
+- Блокеры/предостережения: Windows Graphics Capture timeout; работает чтение четырёх VGA-плоскостей через API с восстановлением GC, нейтральная палитра. --adaptive экспериментален: initial 720x400 не давал Space; последняя поправка не проверена из-за stop. Зафиксированы неуспешные пробы IN/OUT vs INP/OUTP и VRT в DOS callback. Оригиналы/EXE/графику не патчили; BIOS key injection есть только в экспериментальном --adaptive. Все три отчёта <=15 строк, bundled schema validator passed.
+
+## COMPILER-20261101 — происхождение EXE (2026-11-01)
+- main.exe SHA 0b33be2f… и open.exe SHA f5f15d3d… содержат Microsoft CRT copyright 1990 и R600x (observed). Microsoft C-совместимый toolchain и medium model (far code / near data) — inferred; точная версия компилятора/QuickC/линкера unknown, 6.0-era лишь кандидат.
+- Известные признаки внешних LZEXE/PKLITE/EXEPACK не обнаружены; entry ведут в DOS startup. Это не абсолютное исключение нестандартных пакеров. Распаковку и Pramen не применяли.
+- Ghidra readOnly: 83/87 startup-инструкций сверены побайтно с MZ relocations; исходники master/working совпали; report schema VALID. DS=5712 относится к синтетическому mapping main, у open сегмент 193A; это не runtime DS.
+- Отчёт: artifacts/experiments/COMPILER-20261101/report.json; воспроизведение scripts/probe_compiler_ghidra.ps1 и scripts/probe_compiler.py. Hub: bin:0b33be2f:compiler, bin:f5f15d3d:compiler. Для точной версии нужны эталонные CRT objects; ночная работа/платные вызовы не возобновлялись.

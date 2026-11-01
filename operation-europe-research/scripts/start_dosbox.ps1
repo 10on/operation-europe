@@ -6,7 +6,7 @@
 param([string]$Run = "", [switch]$Show)
 $ErrorActionPreference = "Stop"
 $OE = if ($env:OE_ROOT) { $env:OE_ROOT } else { (Resolve-Path "$PSScriptRoot\..").Path }
-if (-not $env:DOSBOX_API_TOKEN -or $env:DOSBOX_API_TOKEN -notmatch '^[0-9a-fA-F]{64}$') { throw "Нет DOSBOX_API_TOKEN: выполните . .\scripts\env.ps1" }
+if (-not $env:DOSBOX_API_TOKEN -or $env:DOSBOX_API_TOKEN -notmatch '^[0-9a-fA-F]{64}$') { throw "Задайте DOSBOX_API_TOKEN (64 hex символа) в текущей переменной окружения; env.ps1 не загружает токен из файла" }
 $exe = $env:OE_DOSBOX_AUTOMATION; if (-not (Test-Path $exe)) { throw "dosbox.exe (Automation) не найден" }
 $priv = Join-Path $OE "private"
 if (-not (Test-Path (Join-Path $priv "game-dos-working"))) { throw "Нет private\game-dos-working" }

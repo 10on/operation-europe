@@ -47,7 +47,9 @@ check("dosbox-automation 0.85.1", dba.exists() and "0.85.1" in str(dba), str(dba
 check("dosbox-x", Path(os.getenv("OE_DOSBOX_X", "C:/DOSBox-X/dosbox-x.exe")).exists())
 
 tok = os.getenv("DOSBOX_API_TOKEN", "")
-check("DOSBOX_API_TOKEN (64 hex)", len(tok) == 64 and all(c in "0123456789abcdefABCDEF" for c in tok))
+tok_ok = len(tok) == 64 and all(c in "0123456789abcdefABCDEF" for c in tok)
+check("DOSBOX_API_TOKEN (64 hex)", tok_ok,
+      "задайте токен в переменной окружения; env.ps1 не загружает его из файла" if not tok_ok else "")
 
 # Целостность мастер-копии private/game-dos по манифесту
 man = PRIV / "game-dos.sha256"
@@ -69,7 +71,7 @@ check("artifacts/inventory.json", (OE / "artifacts" / "inventory.json").exists()
 
 # API (необязателен: DOSBox может быть не запущен)
 try:
-    req = urllib.request.Request(os.getenv("DOSBOX_API_URL", "http://127.0.0.1:8386") + "/api/status",
+    req = urllib.request.Request(os.getenv("DOSBOX_API_URL", "http://127.0.0.1:8386") + "/api/v1/status",
                                  headers={"Authorization": "Bearer " + tok})
     with urllib.request.urlopen(req, timeout=3) as r:
         print(f"[INFO] DOSBox API отвечает: HTTP {r.status}")
