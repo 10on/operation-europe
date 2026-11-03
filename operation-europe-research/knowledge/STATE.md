@@ -25,7 +25,9 @@
 
 Также закрыты #48 (`scripts/oe_ghidra_from_facts.py`, проект Ghidra из facts одной командой), #49 и #11 (`scripts/oe_trace_recheck.py`: хеш трассы TASK-010 совпал в двух повторах). Окно DOSBox-X не сворачивать: свернутое ломает AUTOTYPE. Заведена #222 (формат сохранений).
 
-**Следующий шаг:** #50 (Unicorn против трассы) → done_when M1 → #57 (mapinf) → #222 → #221.
+**Утро 2026-11-03:** закрыт эпик M1 (#50 `scripts/oe_unicorn_task007a.py`: Unicorn совпал с трассой в 6/6 точках; #209). M2: закрыты #52/#53 (msg/emsg — банки глифов 16×16, `glyph16_record.py`), #54 (hexmap — 537 блоков 14×14, базы сценариев DS:B4AA, `hexmap_record.py`), #55/#56/#60 (bigmap/midmap/hexdisp — по 6 регионов, `region_file.py`; hexdisp зависит от кода mapinf), #57 (mapinf 6×40×40), #58 (mappno). Места open всех файлов — hub knowledge `bin:0b33be2f:file-open-sites`.
+
+**Следующий шаг:** #222 (сохранения) → #62/#61/#63 (сжатые картинки: framing или M11) → #59 → #221.
 
 ---
 
