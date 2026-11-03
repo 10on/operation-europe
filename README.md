@@ -13,7 +13,7 @@
 
 Подробный план и протоколы — в `operation-europe-research/` (`README.md`, `AGENTS.md`, `docs/00…12`, `PIPELINE.md`).
 
-Актуальная точка продолжения — [`knowledge/STATE.md`](operation-europe-research/knowledge/STATE.md). Исходные файлы лежат в корне; мастер-копия и рабочая копия для эмулятора уже созданы в `operation-europe-research/private/`.
+План и статусы задач ведутся в Agent Hub (проект `operation-europe-dos-reverse`, эпики M1–M17). Актуальная сводка фактов — начало [`knowledge/STATE.md`](operation-europe-research/knowledge/STATE.md). Исходные файлы лежат в корне; мастер-копия и рабочая копия для эмулятора уже созданы в `operation-europe-research/private/`.
 
 ## Что известно о DOS-версии (первичный осмотр)
 
@@ -28,7 +28,7 @@
 - `face.dat`, `*grp.dat`, `*.npk`, `hexfont*.dat`, `koeilogo.fnt` — графика, портреты, шрифты (`.npk` — упакованная графика).
 - `*.bat`, `install.sys`, `c_fig.sys`, `disk-*.ver` — установка/загрузка.
 
-Консольная Ghidra подтвердила loader MZ и 16-битный real mode для `main.exe`/`open.exe`. В `main.exe` найдены пять точек, передающих адреса рядом со строками `SCEDATA`, `HEXMAP.DAT`, `MSG` в общий wrapper DOS `INT 21h/AH=3Dh` (открытие файла); значение `DS` в этих точках ещё не измерено. Подробности и координаты — в [`FILE_IO.md`](operation-europe-research/knowledge/FILE_IO.md). Не подтверждены полные форматы, сжатие, адреса игровых таблиц и формулы боя.
+Консольная Ghidra подтвердила loader MZ и 16-битный real mode для `main.exe`/`open.exe`; это Microsoft C, упаковщиков нет. Файлы открываются через общий wrapper DOS `INT 21h/AH=3Dh`; `DS` = load segment + `0x4712` (подтверждено отладчиком DOSBox-X и relocations). Чтения `SCEDATA` и `MAPINF.DAT` сверены в рантайме побайтно, файловый ввод-вывод шести сценариев снят ([`FILE_MAP.md`](operation-europe-research/knowledge/FILE_MAP.md), [`FILE_IO.md`](operation-europe-research/knowledge/FILE_IO.md); строка рядом с `MSG` — на деле `MSGRP.DAT`). Не подтверждены полные форматы полей, адреса игровых таблиц и формулы боя.
 
 ## Быстрый старт
 
