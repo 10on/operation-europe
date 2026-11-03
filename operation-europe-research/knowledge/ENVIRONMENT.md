@@ -4,7 +4,7 @@
 ## Быстрый старт для агента
 ```powershell
 cd "<корень>\operation-europe-research"
-$env:DOSBOX_API_TOKEN = '<64 hex символа>'  # задать в текущей сессии; значение не сохранять в файле
+.\scripts\set_dosbox_token.ps1   # 2026-11-03: генерирует новый токен в пользовательскую переменную DOSBOX_API_TOKEN (HKCU), значение не печатает; -Force — заменить
 . .\scripts\env.ps1          # PATH, JAVA_HOME, команды oe-*; токен не загружает
 oe-check                     # проверка окружения (ничего не меняет)
 ```
