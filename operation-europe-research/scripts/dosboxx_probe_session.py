@@ -28,6 +28,7 @@ if '--scenario-downs' in sys.argv:
     EXPERIMENT=f'TASK-{13+SCENARIO_DOWNS:03}'
 if '--slice-caller' in sys.argv: EXPERIMENT='TASK-019'
 if '--text-chain' in sys.argv: EXPERIMENT='TASK-021'
+if '--experiment' in sys.argv: EXPERIMENT=sys.argv[sys.argv.index('--experiment')+1]
 OUT = ROOT / 'artifacts/experiments' / EXPERIMENT / datetime.now(timezone.utc).strftime('run-%Y%m%dT%H%M%SZ')
 PRIVATE = ROOT / 'private'
 GAME = PRIVATE / 'game-dos-working/main.exe'

@@ -106,3 +106,11 @@ artifacts/experiments/EXP-001/
 - API `GET memory` читает **физические** данные или заданный сегмент; расширенная память и DOS XMS требуют учитывать банковые/страничные механизмы.
 - Если `video/text` сообщил `is_text_mode=false`, не продолжать пытаться читать текстовый буфер. Использовать PNG + ROI.
 - API чтения памяти и кадра по отдельности не гарантирует единого снимка **между двумя запросами**: при необходимости поставить игру на паузу безопасным доступным способом или сверить frame/cpu timestamp.
+
+## Повтор динамической трассы TASK-010 (hub #49)
+
+```powershell
+python -I scripts/oe_trace_recheck.py --runs 2 --experiment TRACE-49-20261103
+```
+
+Скрипт N раз запускает `dosboxx_probe_session.py --auto --autotype --new-console --experiment ID` (новый флаг `--experiment` меняет только каталог вывода), проверяет каждый прогон `verify_runtime_reads.py` (только проверка), строит нормализованную трассу (load_base, BP CS:IP, DS, DX, строка DS:DX, AX open/read, побайтовое сравнение и sha256 буфера для SCEDATA и MAPINF), считает `trace_hash` и сравнивает с оригиналом `TASK-010/run-20261030T010340Z`. Результат: `artifacts/experiments/<ID>/comparison.json` и `report.json`. Таймаут одного прогона 600 с (затем убивается только запущенный им DOSBox-X). Окно DOSBox-X сворачивать нельзя: при `--minimize` AUTOTYPE не доходил до игры (0 hits). Окно остаётся открытым, но без фокуса.
