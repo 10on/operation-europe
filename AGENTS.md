@@ -21,6 +21,11 @@
 - Токен DOSBox API — только в переменной `DOSBOX_API_TOKEN`, не в файлах.
 - Мастер-копия `operation-europe-research/private/game-dos/`, рабочая копия `private/game-dos-working/` и манифест уже созданы. Актуальная точка продолжения — `operation-europe-research/knowledge/STATE.md`; перед работой проверять её факты по артефактам.
 
+## Инструменты (правило)
+- Ghidra — через MCP-сервер `ghidra` (pyghidra-mcp: декомпиляция, дизассемблер, xrefs, байты) или headless-скрипты `scripts/ghidra/`. Настройка и состояние — `operation-europe-research/knowledge/ENVIRONMENT.md`, раздел «Ghidra MCP».
+- DOSBox — через отладчик DOSBox-X (`scripts/dosboxx_probe_session.py`) и API DOSBox Automation (`scripts/dosbox_api.py`, `oe-api`).
+- Computer Use — только для того, у чего нет API (например, визуальная проверка экрана); не для управления Ghidra или DOSBox.
+
 ## Следующие шаги
 
 Для работ с TypeSafe/Jev использовать установленный проектный навык `.agents/skills/typesafe-ai/SKILL.md` (запрос пользователя 2026-10-29). Запросы, ответы, usage, стоимость и оценку качества сохранять в артефактах экспериментов; секреты не логировать. Разрешения на бюджет и их срок проверять по актуальному состоянию, не считать их бессрочными.
