@@ -15,6 +15,10 @@ TEXT_SIZE=800
 TEXT_COUNT=12
 RECORD_SIZE=8143
 HEADER_SIZE=TEXT_SIZE*TEXT_COUNT
+# Record arrays: name -> (offset in record, element size, count). The record is loaded at DS:0x42,
+# so DS = offset + 0x42; bases and strides come from the save pointer code (docs/SAVEDATA_FORMAT.md).
+ARRAYS=dict(sides=(0x1D8,65,2), officers=(0x25A,31,44), regiments=(0x7BA,13,256),
+            divisions=(0x14BA,22,64), cities=(0x1A3A,68,21))
 
 @dataclass(frozen=True)
 class Record:
@@ -29,6 +33,22 @@ class Record:
     def parse(cls, raw):
         if len(raw)!=RECORD_SIZE: raise ValueError('Record must contain 8143 bytes')
         return cls(raw[0],raw[1],raw[2:7],raw[7:])
+    def array(self, name):
+        off,size,count=ARRAYS[name]
+        raw=self.build()
+        return tuple(raw[off+i*size:off+(i+1)*size] for i in range(count))
+    def city(self, i):
+        r=self.array('cities')[i]
+        w=lambda o: int.from_bytes(r[o:o+2],'little')
+        return dict(name=r[:20].split(b'\0')[0], fuel=w(23), ammo=w(25), food=w(27), endurance=(r[35],r[36]))
+    def division(self, i):
+        r=self.array('divisions')[i]
+        first=int.from_bytes(r[0:2],'little')
+        return dict(first_regiment=None if first==0xFFFF else first, x=r[2], y=r[3], kind=r[21])
+    def regiment(self, i):
+        r=self.array('regiments')[i]
+        nxt=int.from_bytes(r[0:2],'little')
+        return dict(next=None if nxt==0xFFFF else nxt, type=r[2], strength=int.from_bytes(r[3:5],'little'))
     def build(self):
         if len(self.calendar_candidate)!=5 or len(self.opaque_tail)!=RECORD_SIZE-7:
             raise ValueError('Invalid field lengths')

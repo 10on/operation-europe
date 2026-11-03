@@ -48,6 +48,21 @@ class GameFileTests(unittest.TestCase):
         parsed = sr.Scedata.parse(GAME.read_bytes())
         self.assertEqual([r.map_index for r in parsed.records], [0, 0, 1, 2, 3, 4, 5])
 
+    def test_france_arrays_match_city_screen(self):
+        france = sr.Scedata.parse(GAME.read_bytes()).records[1]
+        self.assertEqual(france.city(0), dict(name=b"San Michel", fuel=20000, ammo=20000, food=50000, endurance=(50, 50)))
+        self.assertEqual(france.city(2)["food"], 25000)
+        self.assertEqual(sum(bool(c[0]) for c in france.array("cities")), 11)
+        self.assertEqual(france.regiment(0x80), dict(next=0x81, type=119, strength=529))
+        self.assertEqual(france.division(32)["first_regiment"], 0x80)
+
+
+class ArrayLayoutTests(unittest.TestCase):
+    def test_arrays_fit_record_without_overlap(self):
+        spans = sorted((o, o + s * n) for o, s, n in sr.ARRAYS.values())
+        self.assertTrue(all(a[1] <= b[0] for a, b in zip(spans, spans[1:])))
+        self.assertLessEqual(spans[-1][1], sr.RECORD_SIZE)
+
 
 if __name__ == "__main__":
     unittest.main()
