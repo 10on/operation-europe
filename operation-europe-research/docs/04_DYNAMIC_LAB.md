@@ -114,3 +114,8 @@ python -I scripts/oe_trace_recheck.py --runs 2 --experiment TRACE-49-20261103
 ```
 
 Скрипт N раз запускает `dosboxx_probe_session.py --auto --autotype --new-console --experiment ID` (новый флаг `--experiment` меняет только каталог вывода), проверяет каждый прогон `verify_runtime_reads.py` (только проверка), строит нормализованную трассу (load_base, BP CS:IP, DS, DX, строка DS:DX, AX open/read, побайтовое сравнение и sha256 буфера для SCEDATA и MAPINF), считает `trace_hash` и сравнивает с оригиналом `TASK-010/run-20261030T010340Z`. Результат: `artifacts/experiments/<ID>/comparison.json` и `report.json`. Таймаут одного прогона 600 с (затем убивается только запущенный им DOSBox-X). Окно DOSBox-X сворачивать нельзя: при `--minimize` AUTOTYPE не доходил до игры (0 hits). Окно остаётся открытым, но без фокуса.
+
+## Unicorn против трассы (TASK-007A, хаб #50)
+
+Команда: `python -I scripts/oe_unicorn_task007a.py [--trace-run <run-dir>] [--out <json>]`.
+Исполняет 60 инструкций функции из `artifacts/experiments/TASK-007A/one-function.json` в Unicorn (16-bit real mode) с входным состоянием из трассы (`hits.json` TRACE-49): CS=0F24, DS=SS=4F5B, SP=SP(0394)+10, AL=1. Сегменты CALLF релоцируются на load base 0x849, как это делает загрузчик DOS. Вызовы 1000:977E/009B/0043/0032 и ближний 1000:6E64 заменены заглушками с семантикой DOS open/seek/read/close. На каждой точке трассы сравниваются регистры; при mapinf исключены BX/CX/DX (их меняют close и 6E64, не моделируются). Проверяются смещения seek (17743, 0) и SHA буферов чтения. Выход 0 — совпало, 1 — любое расхождение. Тест: `tests/test_oe_unicorn_task007a.py` (включая мутации трассы и данных).
