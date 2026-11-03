@@ -1,0 +1,232 @@
+{
+  "format": "oe-facts",
+  "format_version": 1,
+  "binary": {
+    "name": "main.exe",
+    "sha256": "0b33be2fd37b965e5b92d1881f34226c1608eff6d0358787a7cb5049f218e9df",
+    "mz": {
+      "header_bytes": 24576,
+      "ghidra_image_base_segment": "0x1000"
+    },
+    "runtime_example": {
+      "load_base_segment": "0x849",
+      "ds": "0x4F5B"
+    }
+  },
+  "segments": [
+    {
+      "name": "DGROUP",
+      "kind": "dgroup",
+      "relation": "load_base+0x4712",
+      "status": "confirmed",
+      "sources": [
+        {
+          "path": "artifacts/experiments/TASK-010/report.json",
+          "note": "runtime DS=4f5b, load base 0x849 observed"
+        },
+        {
+          "path": "artifacts/experiments/TASK-011/report.json",
+          "note": "DS=SS=4f5b confirmed"
+        },
+        {
+          "path": "artifacts/experiments/TASK-014/report.json",
+          "note": "DS=4f5b, load base 0x849 observed"
+        },
+        {
+          "path": "knowledge/STATE.md",
+          "note": "source of the +0x4712 part (MOV DI,4712h); cited there as verified via hub knowledge, no dedicated report found"
+        },
+        {
+          "path": "artifacts/experiments/RELOC-20261103/report.json",
+          "note": "static: 3 relocation words = 0x4712, MOV DI,4712h at file 0xA0A9 (hub #212)"
+        }
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "id": "F_TASK_007A_FILE_IO",
+      "name": "file_io_scedata_mapinf",
+      "start": [
+        {
+          "kind": "file_offset",
+          "value": "0xD128"
+        },
+        {
+          "kind": "ghidra",
+          "value": "16db:0378"
+        }
+      ],
+      "end": [
+        {
+          "kind": "file_offset",
+          "value": "0xD1C5"
+        },
+        {
+          "kind": "ghidra",
+          "value": "16db:0415"
+        }
+      ],
+      "instruction_count": 60,
+      "size_bytes": 158,
+      "role": "file_io_routine: opens SCEDATA and MAPINF.DAT, seek and read via wrappers; purpose unknown",
+      "status": "confirmed",
+      "sources": [
+        {
+          "path": "artifacts/experiments/TASK-007A/report.json",
+          "note": "range file 0xD128..0xD1C5 = Ghidra 16db:0378..16db:0415, 60 instructions, 158 bytes"
+        },
+        {
+          "path": "artifacts/experiments/TASK-007A/one-function.json",
+          "note": "per-instruction export; not copied here"
+        }
+      ]
+    },
+    {
+      "id": "F_DOS_READ_WRAPPER",
+      "name": "dos_read_wrapper_int21_3F",
+      "start": [
+        {
+          "kind": "ghidra",
+          "value": "1000:0043"
+        },
+        {
+          "kind": "file_offset",
+          "value": "0x6043"
+        }
+      ],
+      "end": [
+        {
+          "kind": "ghidra",
+          "value": "1000:0056"
+        },
+        {
+          "kind": "file_offset",
+          "value": "0x6056"
+        }
+      ],
+      "instruction_count": 10,
+      "size_bytes": 20,
+      "role": "dos_read_wrapper: INT 21h AH=3Fh read, far return",
+      "status": "confirmed",
+      "sources": [
+        {
+          "path": "artifacts/experiments/TASK-007B/report.json",
+          "note": "wrapper 1000:0043..1000:0056, file 0x6043..0x6056, DOS read wrapper"
+        },
+        {
+          "path": "artifacts/experiments/TASK-007B/read-wrapper.json",
+          "note": "wrapper ranges"
+        },
+        {
+          "path": "artifacts/experiments/MCP-002/report.json",
+          "note": "independent Ghidra MCP check of the same 20 bytes and 10 instructions"
+        }
+      ]
+    }
+  ],
+  "data_labels": [
+    {
+      "id": "DL_SCEDATA_NAME",
+      "name": "SCEDATA",
+      "at": [
+        {
+          "kind": "dgroup_offset",
+          "value": "0x2E8C"
+        },
+        {
+          "kind": "file_offset",
+          "value": "0x4FFAC"
+        }
+      ],
+      "type": "string",
+      "status": "observed",
+      "sources": [
+        {
+          "path": "artifacts/experiments/TASK-006/report.json",
+          "note": "SCEDATA string at file 0x4FFAC (Ghidra 5000:9FAC); LEA operand 0x2E8C"
+        },
+        {
+          "path": "artifacts/experiments/TASK-011/report.json",
+          "note": "runtime open of SCEDATA, handle 9"
+        }
+      ]
+    },
+    {
+      "id": "DL_MAPINF_NAME",
+      "name": "MAPINF.DAT",
+      "at": [
+        {
+          "kind": "dgroup_offset",
+          "value": "0x2EF2"
+        }
+      ],
+      "type": "string",
+      "status": "inferred",
+      "sources": [
+        {
+          "path": "artifacts/experiments/TASK-008/report.json",
+          "note": "string at file 0x50012 matches LEA 0x2EF2 only under inferred file segment origin 0x4D120; runtime DS not established"
+        },
+        {
+          "path": "artifacts/experiments/TASK-008/measurement.json",
+          "note": "lea operand 0x2EF2 at file 0xD180, status inferred"
+        }
+      ]
+    },
+    {
+      "id": "DL_MAPINF_READ_BUFFER",
+      "name": "MAPINF.DAT read buffer",
+      "at": [
+        {
+          "kind": "dgroup_offset",
+          "value": "0x20B6"
+        }
+      ],
+      "type": "buffer",
+      "length": 1600,
+      "status": "observed",
+      "sources": [
+        {
+          "path": "artifacts/experiments/TASK-010/report.json",
+          "note": "read AX=1600 into DS:20b6, DS=4f5b"
+        },
+        {
+          "path": "artifacts/experiments/TASK-014/report.json",
+          "note": "read AX=1600 into DS:20b6 again, DS=4f5b"
+        }
+      ]
+    }
+  ],
+  "call_sites": [
+    {
+      "id": "CS_OPEN_SCEDATA_D144",
+      "description": "LEA BX,[0x2E8C] then CALLF to the open wrapper (callee Ghidra 1000:977E, alias 1977:000E; open wrapper 1000:001E = file 0x601E). Opens SCEDATA.",
+      "at": [
+        {
+          "kind": "file_offset",
+          "value": "0xD144"
+        },
+        {
+          "kind": "ghidra",
+          "value": "16db:0394"
+        }
+      ],
+      "status": "confirmed",
+      "sources": [
+        {
+          "path": "artifacts/experiments/TASK-006/report.json",
+          "note": "call sites at file 0xD144 use LEA BX,[0x2E8C]"
+        },
+        {
+          "path": "artifacts/experiments/TASK-007A/one-function.json",
+          "note": "LEA BX,[0x2e8c] at 16db:0394 / file 0xd144"
+        },
+        {
+          "path": "artifacts/experiments/TASK-011/report.json",
+          "note": "runtime open of SCEDATA from function at file 0xD1C6"
+        }
+      ]
+    }
+  ]
+}

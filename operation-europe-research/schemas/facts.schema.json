@@ -1,0 +1,172 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Operation Europe Facts (oe-facts v1)",
+  "description": "Versioned, metadata-only facts about one DOS binary. Holds addresses, names, status and source paths; never original bytes or disassembly.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "format_version", "binary", "segments", "functions", "data_labels", "call_sites"],
+  "properties": {
+    "format": {"const": "oe-facts"},
+    "format_version": {"const": 1},
+    "binary": {"$ref": "#/$defs/binary"},
+    "segments": {"type": "array", "items": {"$ref": "#/$defs/segment"}},
+    "functions": {"type": "array", "items": {"$ref": "#/$defs/function"}},
+    "data_labels": {"type": "array", "items": {"$ref": "#/$defs/data_label"}},
+    "call_sites": {"type": "array", "items": {"$ref": "#/$defs/call_site"}}
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "hex_segment": {
+      "type": "string",
+      "pattern": "^0x[0-9A-Fa-f]{1,4}$"
+    },
+    "hex_offset": {
+      "type": "string",
+      "pattern": "^0x[0-9A-Fa-f]+$"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["confirmed", "observed", "inferred", "unknown"]
+    },
+    "binary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "sha256", "mz"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "mz": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["header_bytes", "ghidra_image_base_segment"],
+          "properties": {
+            "header_bytes": {"type": "integer", "minimum": 28},
+            "ghidra_image_base_segment": {"$ref": "#/$defs/hex_segment"}
+          }
+        },
+        "runtime_example": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Observed example from one DOSBox-X run. Not a fact for other runs.",
+          "required": ["load_base_segment", "ds"],
+          "properties": {
+            "load_base_segment": {"$ref": "#/$defs/hex_segment"},
+            "ds": {"$ref": "#/$defs/hex_segment"}
+          }
+        }
+      }
+    },
+    "address": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value"],
+      "properties": {
+        "kind": {"type": "string", "enum": ["file_offset", "ghidra", "runtime", "dgroup_offset"]},
+        "value": {"type": "string"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"kind": {"const": "ghidra"}}, "required": ["kind"]},
+          "then": {"properties": {"value": {"pattern": "^[0-9A-Fa-f]{4}:[0-9A-Fa-f]{4}$"}}}
+        },
+        {
+          "if": {"properties": {"kind": {"const": "runtime"}}, "required": ["kind"]},
+          "then": {"properties": {"value": {"pattern": "^[0-9A-Fa-f]{4}:[0-9A-Fa-f]{4}$"}}}
+        },
+        {
+          "if": {"properties": {"kind": {"const": "file_offset"}}, "required": ["kind"]},
+          "then": {"properties": {"value": {"$ref": "#/$defs/hex_offset"}}}
+        },
+        {
+          "if": {"properties": {"kind": {"const": "dgroup_offset"}}, "required": ["kind"]},
+          "then": {"properties": {"value": {"$ref": "#/$defs/hex_offset"}}}
+        }
+      ]
+    },
+    "addresses": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/address"}
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?!/)(?![A-Za-z]:)[^\\\\]+$"
+        },
+        "note": {"type": "string"}
+      }
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/source"}
+    },
+    "segment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "kind", "relation", "status", "sources"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "kind": {"type": "string", "enum": ["dgroup", "code"]},
+        "relation": {"type": "string", "minLength": 1},
+        "status": {"$ref": "#/$defs/status"},
+        "sources": {"$ref": "#/$defs/sources"}
+      }
+    },
+    "function": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "start", "role", "status", "sources"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "name": {"type": "string", "minLength": 1},
+        "start": {"$ref": "#/$defs/addresses"},
+        "end": {"$ref": "#/$defs/addresses"},
+        "instruction_count": {"type": "integer", "minimum": 0},
+        "size_bytes": {"type": "integer", "minimum": 0},
+        "role": {"type": "string", "minLength": 1},
+        "status": {"$ref": "#/$defs/status"},
+        "sources": {"$ref": "#/$defs/sources"}
+      }
+    },
+    "data_label": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "at", "type", "status", "sources"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "name": {"type": "string", "minLength": 1},
+        "at": {"$ref": "#/$defs/addresses"},
+        "type": {"type": "string", "enum": ["string", "buffer", "word", "unknown"]},
+        "length": {"type": "integer", "minimum": 0},
+        "status": {"$ref": "#/$defs/status"},
+        "sources": {"$ref": "#/$defs/sources"}
+      }
+    },
+    "call_site": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "description", "at", "status", "sources"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "description": {"type": "string", "minLength": 1},
+        "at": {"$ref": "#/$defs/addresses"},
+        "target_function_id": {"$ref": "#/$defs/id"},
+        "status": {"$ref": "#/$defs/status"},
+        "sources": {"$ref": "#/$defs/sources"}
+      }
+    }
+  }
+}
