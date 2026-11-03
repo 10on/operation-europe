@@ -23,7 +23,9 @@
 
 **Сессия 2026-11-03 (ночь):** закрыты #212 (`scripts/oe_reloc_check.py`, RELOC-20261103), #216 (`verify_*.py` только проверяют), #217 (формат facts: `schemas/facts.schema.json`, `facts/main_exe.facts.json`, `docs/FACTS_FORMAT.md`), #51 (`docs/SCEDATA_FORMAT.md` + `tests/test_scedata_record.py`; байты записи +2..+4 = дата начала сценария, inferred; расшифровка массивов — #221). Начат #57 (анализ MAPINF-FMT-20261103).
 
-**Следующий шаг:** проверить/довести #48 (`scripts/oe_ghidra_from_facts.py`) и #49 (`scripts/oe_trace_recheck.py`), закрыть #11 по #49 → #50 (Unicorn) → done_when M1 → #57.
+Также закрыты #48 (`scripts/oe_ghidra_from_facts.py`, проект Ghidra из facts одной командой), #49 и #11 (`scripts/oe_trace_recheck.py`: хеш трассы TASK-010 совпал в двух повторах). Окно DOSBox-X не сворачивать: свернутое ломает AUTOTYPE. Заведена #222 (формат сохранений).
+
+**Следующий шаг:** #50 (Unicorn против трассы) → done_when M1 → #57 (mapinf) → #222 → #221.
 
 ---
 
