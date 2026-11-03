@@ -44,6 +44,7 @@ class Record:
     def division(self, i):
         r=self.array('divisions')[i]
         first=int.from_bytes(r[0:2],'little')
+        # x, y: cell of the 40x40 map (16db:1eea); +0x15 bit 2 = on map, bit 0 = army HQ.
         return dict(first_regiment=None if first==0xFFFF else first, x=r[2], y=r[3], kind=r[21])
     def regiment(self, i):
         r=self.array('regiments')[i]

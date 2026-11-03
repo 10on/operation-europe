@@ -55,6 +55,9 @@ class GameFileTests(unittest.TestCase):
         self.assertEqual(sum(bool(c[0]) for c in france.array("cities")), 11)
         self.assertEqual(france.regiment(0x80), dict(next=0x81, type=119, strength=529))
         self.assertEqual(france.division(32)["first_regiment"], 0x80)
+        # Division 32 = side 1, army 0, HQ: cell (22, 3), on-map and HQ bits set (DIVXY-223).
+        d32 = france.division(32)
+        self.assertEqual((d32["x"], d32["y"], d32["kind"] & 5), (22, 3, 5))
 
 
 class ArrayLayoutTests(unittest.TestCase):
